@@ -12,6 +12,8 @@ import { ProfileDatailsComponent } from './profiles/profile-datails/profile-data
 import { CreateProfileComponent } from './profiles/create-profile/create-profile.component';
 import { UpdateProfileComponent } from './profiles/update-profile/update-profile.component';
 import { MessageComponent } from './messages/message/message.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,10 @@ import { MessageComponent } from './messages/message/message.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
