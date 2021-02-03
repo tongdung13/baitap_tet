@@ -12,6 +12,7 @@ import { ProfileDatailsComponent } from './profiles/profile-datails/profile-data
 import { CreateProfileComponent } from './profiles/create-profile/create-profile.component';
 import { UpdateProfileComponent } from './profiles/update-profile/update-profile.component';
 import { MessageComponent } from './messages/message/message.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { MessageComponent } from './messages/message/message.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]
