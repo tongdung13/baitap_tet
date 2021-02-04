@@ -33,7 +33,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      *
      * @var string
      */
-    const VERSION = '8.25.0';
+    const VERSION = '8.13.0';
 
     /**
      * The base path for the Laravel installation.
@@ -111,13 +111,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
      * @var string
      */
     protected $databasePath;
-
-    /**
-     * The custom language file path defined by the developer.
-     *
-     * @var string
-     */
-    protected $langPath;
 
     /**
      * The custom storage path defined by the developer.
@@ -414,30 +407,7 @@ class Application extends Container implements ApplicationContract, CachesConfig
      */
     public function langPath()
     {
-        if ($this->langPath) {
-            return $this->langPath;
-        }
-
-        if (is_dir($path = $this->resourcePath().DIRECTORY_SEPARATOR.'lang')) {
-            return $path;
-        }
-
-        return $this->basePath().DIRECTORY_SEPARATOR.'lang';
-    }
-
-    /**
-     * Set the language file directory.
-     *
-     * @param  string  $path
-     * @return $this
-     */
-    public function useLangPath($path)
-    {
-        $this->langPath = $path;
-
-        $this->instance('path.lang', $path);
-
-        return $this;
+        return $this->resourcePath().DIRECTORY_SEPARATOR.'lang';
     }
 
     /**
@@ -1212,16 +1182,6 @@ class Application extends Container implements ApplicationContract, CachesConfig
     }
 
     /**
-     * Get the current application locale.
-     *
-     * @return string
-     */
-    public function currentLocale()
-    {
-        return $this->getLocale();
-    }
-
-    /**
      * Get the current application fallback locale.
      *
      * @return string
@@ -1341,11 +1301,8 @@ class Application extends Container implements ApplicationContract, CachesConfig
         $this->serviceProviders = [];
         $this->resolvingCallbacks = [];
         $this->terminatingCallbacks = [];
-        $this->beforeResolvingCallbacks = [];
         $this->afterResolvingCallbacks = [];
-        $this->globalBeforeResolvingCallbacks = [];
         $this->globalResolvingCallbacks = [];
-        $this->globalAfterResolvingCallbacks = [];
     }
 
     /**

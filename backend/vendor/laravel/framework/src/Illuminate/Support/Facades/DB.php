@@ -3,7 +3,6 @@
 namespace Illuminate\Support\Facades;
 
 /**
- * @method static \Doctrine\DBAL\Driver\PDOConnection getPdo()
  * @method static \Illuminate\Database\ConnectionInterface connection(string $name = null)
  * @method static \Illuminate\Database\Query\Builder table(string $table, string $as = null)
  * @method static \Illuminate\Database\Query\Expression raw($value)
@@ -22,7 +21,6 @@ namespace Illuminate\Support\Facades;
  * @method static string getDefaultConnection()
  * @method static void beginTransaction()
  * @method static void commit()
- * @method static void afterCommit(\Closure $callback)
  * @method static void listen(\Closure $callback)
  * @method static void rollBack(int $toLevel = null)
  * @method static void setDefaultConnection(string $name)

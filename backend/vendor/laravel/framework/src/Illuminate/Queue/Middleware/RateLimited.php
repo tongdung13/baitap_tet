@@ -120,27 +120,4 @@ class RateLimited
     {
         return $this->limiter->availableIn($key) + 3;
     }
-
-    /**
-     * Prepare the object for serialization.
-     *
-     * @return array
-     */
-    public function __sleep()
-    {
-        return [
-            'limiterName',
-            'shouldRelease',
-        ];
-    }
-
-    /**
-     * Prepare the object after unserialization.
-     *
-     * @return void
-     */
-    public function __wakeup()
-    {
-        $this->limiter = Container::getInstance()->make(RateLimiter::class);
-    }
 }

@@ -4,13 +4,11 @@ namespace Illuminate\Support;
 
 use Closure;
 use Illuminate\Support\Traits\Macroable;
-use Illuminate\Support\Traits\Tappable;
-use JsonSerializable;
 use Symfony\Component\VarDumper\VarDumper;
 
-class Stringable implements JsonSerializable
+class Stringable
 {
-    use Macroable, Tappable;
+    use Macroable;
 
     /**
      * The underlying string value.
@@ -83,16 +81,6 @@ class Stringable implements JsonSerializable
     public function basename($suffix = '')
     {
         return new static(basename($this->value, $suffix));
-    }
-
-    /**
-     * Get the basename of the class path.
-     *
-     * @return static
-     */
-    public function classBasename()
-    {
-        return new static(class_basename($this->value));
     }
 
     /**
@@ -399,17 +387,6 @@ class Stringable implements JsonSerializable
     public function parseCallback($default = null)
     {
         return Str::parseCallback($this->value, $default);
-    }
-
-    /**
-     * Call the given callback and return a new string.
-     *
-     * @param callable $callback
-     * @return static
-     */
-    public function pipe(callable $callback)
-    {
-        return new static(call_user_func($callback, $this));
     }
 
     /**
@@ -733,16 +710,6 @@ class Stringable implements JsonSerializable
         $this->dump();
 
         exit(1);
-    }
-
-    /**
-     * Convert the object to a string when JSON encoded.
-     *
-     * @return string
-     */
-    public function jsonSerialize()
-    {
-        return $this->__toString();
     }
 
     /**
