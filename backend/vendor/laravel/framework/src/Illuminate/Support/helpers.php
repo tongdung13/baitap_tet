@@ -277,14 +277,10 @@ if (! function_exists('throw_if')) {
      *
      * @throws \Throwable
      */
-    function throw_if($condition, $exception = 'RuntimeException', ...$parameters)
+    function throw_if($condition, $exception, ...$parameters)
     {
         if ($condition) {
-            if (is_string($exception) && class_exists($exception)) {
-                $exception = new $exception(...$parameters);
-            }
-
-            throw is_string($exception) ? new RuntimeException($exception) : $exception;
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
         }
 
         return $condition;
@@ -302,14 +298,10 @@ if (! function_exists('throw_unless')) {
      *
      * @throws \Throwable
      */
-    function throw_unless($condition, $exception = 'RuntimeException', ...$parameters)
+    function throw_unless($condition, $exception, ...$parameters)
     {
         if (! $condition) {
-            if (is_string($exception) && class_exists($exception)) {
-                $exception = new $exception(...$parameters);
-            }
-
-            throw is_string($exception) ? new RuntimeException($exception) : $exception;
+            throw (is_string($exception) ? new $exception(...$parameters) : $exception);
         }
 
         return $condition;
