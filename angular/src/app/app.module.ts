@@ -13,6 +13,8 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthHeaderInterceptor } from './shared/auth-header.interceptor';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { UpdatePasswordComponent } from './components/update-password/update-password.component';
+import { NavbarComponent } from './navbars/navbar/navbar.component';
+import { MessageComponent } from './messages/message/message.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import { UpdatePasswordComponent } from './components/update-password/update-pas
     RegisterComponent,
     ProfileComponent,
     ResetPasswordComponent,
-    UpdatePasswordComponent
+    UpdatePasswordComponent,
+    NavbarComponent,
+    MessageComponent
   ],
   imports: [
     BrowserModule,
