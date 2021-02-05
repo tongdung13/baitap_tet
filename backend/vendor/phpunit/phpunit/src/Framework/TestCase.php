@@ -724,11 +724,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
      * Runs the test case and collects the results in a TestResult object.
      * If no TestResult object is passed a new one will be created.
      *
+     * @throws CodeCoverageException
+     * @throws UtilException
      * @throws \SebastianBergmann\CodeCoverage\InvalidArgumentException
      * @throws \SebastianBergmann\CodeCoverage\UnintentionallyCoveredCodeException
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-     * @throws CodeCoverageException
-     * @throws UtilException
      */
     public function run(TestResult $result = null): TestResult
     {
@@ -736,12 +736,11 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
             $result = $this->createResult();
         }
 
-        if (!$this instanceof ErrorTestCase && !$this instanceof WarningTestCase) {
+        if (!$this instanceof WarningTestCase) {
             $this->setTestResultObject($result);
         }
 
-        if (!$this instanceof ErrorTestCase &&
-            !$this instanceof WarningTestCase &&
+        if (!$this instanceof WarningTestCase &&
             !$this instanceof SkippedTestCase &&
             !$this->handleDependencies()) {
             return $result;
@@ -937,6 +936,17 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     }
 
     /**
+     * @internal This method is not covered by the backward compatibility promise for PHPUnit
+     */
+    public function getAnnotations(): array
+    {
+        return TestUtil::parseTestMethodAnnotations(
+            get_class($this),
+            $this->name
+        );
+    }
+
+    /**
      * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      *
      * @internal This method is not covered by the backward compatibility promise for PHPUnit
@@ -960,7 +970,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     public function getSize(): int
     {
         return TestUtil::getSize(
-            static::class,
+            get_class($this),
             $this->getName(false)
         );
     }
@@ -1105,7 +1115,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         clearstatcache();
         $currentWorkingDirectory = getcwd();
 
-        $hookMethods = TestUtil::getHookMethods(static::class);
+        $hookMethods = TestUtil::getHookMethods(get_class($this));
 
         $hasMetRequirements = false;
 
@@ -1467,7 +1477,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         $id = $this->name;
 
         if (strpos($id, '::') === false) {
-            $id = static::class . '::' . $id;
+            $id = get_class($this) . '::' . $id;
         }
 
         if ($this->usesDataProvider()) {
@@ -1504,10 +1514,10 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     /**
      * Override to run the test and assert its state.
      *
-     * @throws \SebastianBergmann\ObjectEnumerator\InvalidArgumentException
      * @throws AssertionFailedError
      * @throws Exception
      * @throws ExpectationFailedException
+     * @throws \SebastianBergmann\ObjectEnumerator\InvalidArgumentException
      * @throws Throwable
      */
     protected function runTest()
@@ -2008,9 +2018,9 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     }
 
     /**
+     * @throws Warning
      * @throws SkippedTestError
      * @throws SyntheticSkippedError
-     * @throws Warning
      */
     private function checkRequirements(): void
     {
@@ -2019,7 +2029,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         }
 
         $missingRequirements = TestUtil::getMissingRequirements(
-            static::class,
+            get_class($this),
             $this->name
         );
 
@@ -2121,7 +2131,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
         $this->result->addError(
             $this,
             new SkippedTestError(
-                'This method has an invalid @depends annotation.'
+                sprintf('This method has an invalid @depends annotation.')
             ),
             0
         );
@@ -2227,8 +2237,8 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     }
 
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws RiskyTestError
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     private function restoreGlobalState(): void
     {
@@ -2324,8 +2334,8 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
     }
 
     /**
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws RiskyTestError
+     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     private function compareGlobalStateSnapshots(Snapshot $before, Snapshot $after): void
     {
@@ -2438,10 +2448,7 @@ abstract class TestCase extends Assert implements Reorderable, SelfDescribing, T
 
     private function setDoesNotPerformAssertionsFromAnnotation(): void
     {
-        $annotations = TestUtil::parseTestMethodAnnotations(
-            static::class,
-            $this->name
-        );
+        $annotations = $this->getAnnotations();
 
         if (isset($annotations['method']['doesNotPerformAssertions'])) {
             $this->doesNotPerformAssertions = true;

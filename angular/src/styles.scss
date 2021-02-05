@@ -1,0 +1,32 @@
+/* You can add global styles to this file, and also import other style files */
+/*
+Template Name: Admin Template
+Author: Niravjoshi / Wrappixel
+File: scss
+*/
+
+//(fonts)
+@import url('https://fonts.googleapis.com/css?family=Rubik:300,400,500,700,900');
+
+//(Required file)
+@import './assets/scss/variable.scss';
+
+// Import Bootstrap source files (Required file)
+@import "./assets/scss/bootstrap/bootstrap.scss";
+
+//This is for the components (Required file)
+@import './assets/scss/components.scss';
+
+//This is for the responsive (Required file)
+@import './assets/scss/responsive.scss';
+
+//In This scss you can write your scss
+@import './assets/scss/custom.scss';
+
+//This is for the icons (Required file)
+@import './assets/scss/icons/font-awesome/css/fontawesome-all.css';
+@import './assets/scss/icons/themify-icons/themify-icons.css';
+@import "./assets/scss/icons/material-design-iconic-font/css/materialdesignicons.min.css";
+
+
+

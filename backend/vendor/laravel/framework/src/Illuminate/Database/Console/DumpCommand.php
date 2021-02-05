@@ -8,7 +8,6 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\ConnectionResolverInterface;
 use Illuminate\Database\Events\SchemaDumped;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Config;
 
 class DumpCommand extends Command
 {
@@ -32,8 +31,6 @@ class DumpCommand extends Command
     /**
      * Execute the console command.
      *
-     * @param  \Illuminate\Database\ConnectionResolverInterface  $connections
-     * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
      * @return int
      */
     public function handle(ConnectionResolverInterface $connections, Dispatcher $dispatcher)
@@ -66,7 +63,6 @@ class DumpCommand extends Command
     protected function schemaState(Connection $connection)
     {
         return $connection->getSchemaState()
-                ->withMigrationTable($connection->getTablePrefix().Config::get('database.migrations', 'migrations'))
                 ->handleOutputUsing(function ($type, $buffer) {
                     $this->output->write($buffer);
                 });
