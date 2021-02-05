@@ -1,3 +1,5 @@
+
+
 <form [formGroup]="signinForm" (ngSubmit)="onSubmit()">
     <h2 class="h3 mb-3">Login</h2>
 
@@ -23,8 +25,11 @@
       </div>
     </div>
 
-    <button type="submit" class="btn btn-success">Signin</button>
+    <div >
+      <button type="submit" class="btn btn-success" style="margin-left: 22px;">Signin</button>
+      <button (click)="list()" class="btn btn-success" style="margin-left: 20px;">Back</button>
+    </div>
+      <a routerLink="/signup" style="margin-left: 92px;">Register</a>
   </form>
 
 
-  

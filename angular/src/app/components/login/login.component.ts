@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
         },() => {
           this.authenticationStateService.setAuthState(true);
           this.signinForm.reset()
-          this.router.navigate(['message']);
+          this.router.navigate(['chat-room']);
         }
       );
   }
@@ -51,4 +51,8 @@ export class LoginComponent implements OnInit {
     this.tokenAuthService.setTokenStorage(jwt.access_token);
   }
 
+  list()
+  {
+    this.router.navigate(['']);
+  }
 }

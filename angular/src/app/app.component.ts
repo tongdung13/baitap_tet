@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TokenAuthService } from './shared/token-auth.service';
 import { AuthenticationStateService } from './shared/authentication-state.service';
+import * as firebase from 'firebase';
+
+const config = {
+  apiKey: 'AIzaSyD9hymIaCe81MO_bq_92H4tOZgAIMMW2jQ',
+  databaseURL: 'https://angularchat-40ce0-default-rtdb.firebaseio.com'
+};
 
 @Component({
   selector: 'app-root',
@@ -10,7 +16,7 @@ import { AuthenticationStateService } from './shared/authentication-state.servic
 })
 
 export class AppComponent {
-  
+  title = 'Room Chat';
   isLoggedin: boolean;
 
   constructor(
@@ -18,6 +24,8 @@ export class AppComponent {
     private tokenAuthService: TokenAuthService,
     public authenticationStateService: AuthenticationStateService
   ) {
+    // @ts-ignore
+    firebase.initializeApp(config);
   }
 
   ngOnInit() {
@@ -30,6 +38,6 @@ export class AppComponent {
     this.authenticationStateService.setAuthState(false);
     this.tokenAuthService.destroyToken();
     this.router.navigate(['signin']);
-  }  
+  }
 
 }
