@@ -44,4 +44,8 @@ export class RegisterComponent implements OnInit {
     )
   }
 
+  list()
+  {
+    this.router.navigate(['signin']);
+  }
 }
