@@ -35,7 +35,6 @@ use PHPUnit\Runner\AfterLastTestHook;
 use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\Runner\BeforeFirstTestHook;
 use PHPUnit\Runner\DefaultTestResultCache;
-use PHPUnit\Runner\Extension\ExtensionHandler;
 use PHPUnit\Runner\Filter\ExcludeGroupFilterIterator;
 use PHPUnit\Runner\Filter\Factory;
 use PHPUnit\Runner\Filter\IncludeGroupFilterIterator;
@@ -51,6 +50,7 @@ use PHPUnit\Runner\TestSuiteSorter;
 use PHPUnit\Runner\Version;
 use PHPUnit\TextUI\XmlConfiguration\CodeCoverage\FilterMapper;
 use PHPUnit\TextUI\XmlConfiguration\Configuration;
+use PHPUnit\TextUI\XmlConfiguration\ExtensionHandler;
 use PHPUnit\TextUI\XmlConfiguration\Loader;
 use PHPUnit\TextUI\XmlConfiguration\PhpHandler;
 use PHPUnit\Util\Filesystem;
@@ -343,75 +343,81 @@ final class TestRunner extends BaseTestRunner
         $coverageFilterFromOption            = false;
         $codeCoverageReports                 = 0;
 
-        if (isset($arguments['testdoxHTMLFile'])) {
-            $result->addListener(
-                new HtmlResultPrinter(
-                    $arguments['testdoxHTMLFile'],
-                    $arguments['testdoxGroups'],
-                    $arguments['testdoxExcludeGroups']
-                )
-            );
+        if (!isset($arguments['noLogging'])) {
+            if (isset($arguments['testdoxHTMLFile'])) {
+                $result->addListener(
+                    new HtmlResultPrinter(
+                        $arguments['testdoxHTMLFile'],
+                        $arguments['testdoxGroups'],
+                        $arguments['testdoxExcludeGroups']
+                    )
+                );
+            }
+
+            if (isset($arguments['testdoxTextFile'])) {
+                $result->addListener(
+                    new TextResultPrinter(
+                        $arguments['testdoxTextFile'],
+                        $arguments['testdoxGroups'],
+                        $arguments['testdoxExcludeGroups']
+                    )
+                );
+            }
+
+            if (isset($arguments['testdoxXMLFile'])) {
+                $result->addListener(
+                    new XmlResultPrinter(
+                        $arguments['testdoxXMLFile']
+                    )
+                );
+            }
+
+            if (isset($arguments['teamcityLogfile'])) {
+                $result->addListener(
+                    new TeamCity($arguments['teamcityLogfile'])
+                );
+            }
+
+            if (isset($arguments['junitLogfile'])) {
+                $result->addListener(
+                    new JUnit(
+                        $arguments['junitLogfile'],
+                        $arguments['reportUselessTests']
+                    )
+                );
+            }
+
+            if (isset($arguments['coverageClover'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coverageCobertura'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coverageCrap4J'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coverageHtml'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coveragePHP'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coverageText'])) {
+                $codeCoverageReports++;
+            }
+
+            if (isset($arguments['coverageXml'])) {
+                $codeCoverageReports++;
+            }
         }
 
-        if (isset($arguments['testdoxTextFile'])) {
-            $result->addListener(
-                new TextResultPrinter(
-                    $arguments['testdoxTextFile'],
-                    $arguments['testdoxGroups'],
-                    $arguments['testdoxExcludeGroups']
-                )
-            );
-        }
-
-        if (isset($arguments['testdoxXMLFile'])) {
-            $result->addListener(
-                new XmlResultPrinter(
-                    $arguments['testdoxXMLFile']
-                )
-            );
-        }
-
-        if (isset($arguments['teamcityLogfile'])) {
-            $result->addListener(
-                new TeamCity($arguments['teamcityLogfile'])
-            );
-        }
-
-        if (isset($arguments['junitLogfile'])) {
-            $result->addListener(
-                new JUnit(
-                    $arguments['junitLogfile'],
-                    $arguments['reportUselessTests']
-                )
-            );
-        }
-
-        if (isset($arguments['coverageClover'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coverageCobertura'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coverageCrap4J'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coverageHtml'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coveragePHP'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coverageText'])) {
-            $codeCoverageReports++;
-        }
-
-        if (isset($arguments['coverageXml'])) {
-            $codeCoverageReports++;
+        if (isset($arguments['noCoverage'])) {
+            $codeCoverageReports = 0;
         }
 
         if ($codeCoverageReports > 0 || isset($arguments['xdebugFilterFile'])) {
@@ -880,8 +886,8 @@ final class TestRunner extends BaseTestRunner
     }
 
     /**
-     * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
      * @throws Exception
+     * @throws \PHPUnit\TextUI\XmlConfiguration\Exception
      */
     private function handleConfiguration(array &$arguments): void
     {
@@ -898,48 +904,46 @@ final class TestRunner extends BaseTestRunner
 
             $codeCoverageConfiguration = $arguments['configurationObject']->codeCoverage();
 
-            if (!isset($arguments['noCoverage'])) {
-                if (!isset($arguments['coverageClover']) && $codeCoverageConfiguration->hasClover()) {
-                    $arguments['coverageClover'] = $codeCoverageConfiguration->clover()->target()->path();
+            if (!isset($arguments['coverageClover']) && $codeCoverageConfiguration->hasClover()) {
+                $arguments['coverageClover'] = $codeCoverageConfiguration->clover()->target()->path();
+            }
+
+            if (!isset($arguments['coverageCobertura']) && $codeCoverageConfiguration->hasCobertura()) {
+                $arguments['coverageCobertura'] = $codeCoverageConfiguration->cobertura()->target()->path();
+            }
+
+            if (!isset($arguments['coverageCrap4J']) && $codeCoverageConfiguration->hasCrap4j()) {
+                $arguments['coverageCrap4J'] = $codeCoverageConfiguration->crap4j()->target()->path();
+
+                if (!isset($arguments['crap4jThreshold'])) {
+                    $arguments['crap4jThreshold'] = $codeCoverageConfiguration->crap4j()->threshold();
+                }
+            }
+
+            if (!isset($arguments['coverageHtml']) && $codeCoverageConfiguration->hasHtml()) {
+                $arguments['coverageHtml'] = $codeCoverageConfiguration->html()->target()->path();
+
+                if (!isset($arguments['reportLowUpperBound'])) {
+                    $arguments['reportLowUpperBound'] = $codeCoverageConfiguration->html()->lowUpperBound();
                 }
 
-                if (!isset($arguments['coverageCobertura']) && $codeCoverageConfiguration->hasCobertura()) {
-                    $arguments['coverageCobertura'] = $codeCoverageConfiguration->cobertura()->target()->path();
+                if (!isset($arguments['reportHighLowerBound'])) {
+                    $arguments['reportHighLowerBound'] = $codeCoverageConfiguration->html()->highLowerBound();
                 }
+            }
 
-                if (!isset($arguments['coverageCrap4J']) && $codeCoverageConfiguration->hasCrap4j()) {
-                    $arguments['coverageCrap4J'] = $codeCoverageConfiguration->crap4j()->target()->path();
+            if (!isset($arguments['coveragePHP']) && $codeCoverageConfiguration->hasPhp()) {
+                $arguments['coveragePHP'] = $codeCoverageConfiguration->php()->target()->path();
+            }
 
-                    if (!isset($arguments['crap4jThreshold'])) {
-                        $arguments['crap4jThreshold'] = $codeCoverageConfiguration->crap4j()->threshold();
-                    }
-                }
+            if (!isset($arguments['coverageText']) && $codeCoverageConfiguration->hasText()) {
+                $arguments['coverageText']                   = $codeCoverageConfiguration->text()->target()->path();
+                $arguments['coverageTextShowUncoveredFiles'] = $codeCoverageConfiguration->text()->showUncoveredFiles();
+                $arguments['coverageTextShowOnlySummary']    = $codeCoverageConfiguration->text()->showOnlySummary();
+            }
 
-                if (!isset($arguments['coverageHtml']) && $codeCoverageConfiguration->hasHtml()) {
-                    $arguments['coverageHtml'] = $codeCoverageConfiguration->html()->target()->path();
-
-                    if (!isset($arguments['reportLowUpperBound'])) {
-                        $arguments['reportLowUpperBound'] = $codeCoverageConfiguration->html()->lowUpperBound();
-                    }
-
-                    if (!isset($arguments['reportHighLowerBound'])) {
-                        $arguments['reportHighLowerBound'] = $codeCoverageConfiguration->html()->highLowerBound();
-                    }
-                }
-
-                if (!isset($arguments['coveragePHP']) && $codeCoverageConfiguration->hasPhp()) {
-                    $arguments['coveragePHP'] = $codeCoverageConfiguration->php()->target()->path();
-                }
-
-                if (!isset($arguments['coverageText']) && $codeCoverageConfiguration->hasText()) {
-                    $arguments['coverageText']                   = $codeCoverageConfiguration->text()->target()->path();
-                    $arguments['coverageTextShowUncoveredFiles'] = $codeCoverageConfiguration->text()->showUncoveredFiles();
-                    $arguments['coverageTextShowOnlySummary']    = $codeCoverageConfiguration->text()->showOnlySummary();
-                }
-
-                if (!isset($arguments['coverageXml']) && $codeCoverageConfiguration->hasXml()) {
-                    $arguments['coverageXml'] = $codeCoverageConfiguration->xml()->target()->path();
-                }
+            if (!isset($arguments['coverageXml']) && $codeCoverageConfiguration->hasXml()) {
+                $arguments['coverageXml'] = $codeCoverageConfiguration->xml()->target()->path();
             }
 
             $phpunitConfiguration = $arguments['configurationObject']->phpunit();
@@ -1021,7 +1025,7 @@ final class TestRunner extends BaseTestRunner
             $extensionHandler = new ExtensionHandler;
 
             foreach ($arguments['configurationObject']->extensions() as $extension) {
-                $extensionHandler->registerExtension($extension, $this);
+                $this->addExtension($extensionHandler->createHookInstance($extension));
             }
 
             foreach ($arguments['configurationObject']->listeners() as $listener) {
@@ -1039,33 +1043,31 @@ final class TestRunner extends BaseTestRunner
 
             $loggingConfiguration = $arguments['configurationObject']->logging();
 
-            if (!isset($arguments['noLogging'])) {
-                if ($loggingConfiguration->hasText()) {
-                    $arguments['listeners'][] = new DefaultResultPrinter(
-                        $loggingConfiguration->text()->target()->path(),
-                        true
-                    );
-                }
+            if ($loggingConfiguration->hasText()) {
+                $arguments['listeners'][] = new DefaultResultPrinter(
+                    $loggingConfiguration->text()->target()->path(),
+                    true
+                );
+            }
 
-                if (!isset($arguments['teamcityLogfile']) && $loggingConfiguration->hasTeamCity()) {
-                    $arguments['teamcityLogfile'] = $loggingConfiguration->teamCity()->target()->path();
-                }
+            if (!isset($arguments['teamcityLogfile']) && $loggingConfiguration->hasTeamCity()) {
+                $arguments['teamcityLogfile'] = $loggingConfiguration->teamCity()->target()->path();
+            }
 
-                if (!isset($arguments['junitLogfile']) && $loggingConfiguration->hasJunit()) {
-                    $arguments['junitLogfile'] = $loggingConfiguration->junit()->target()->path();
-                }
+            if (!isset($arguments['junitLogfile']) && $loggingConfiguration->hasJunit()) {
+                $arguments['junitLogfile'] = $loggingConfiguration->junit()->target()->path();
+            }
 
-                if (!isset($arguments['testdoxHTMLFile']) && $loggingConfiguration->hasTestDoxHtml()) {
-                    $arguments['testdoxHTMLFile'] = $loggingConfiguration->testDoxHtml()->target()->path();
-                }
+            if (!isset($arguments['testdoxHTMLFile']) && $loggingConfiguration->hasTestDoxHtml()) {
+                $arguments['testdoxHTMLFile'] = $loggingConfiguration->testDoxHtml()->target()->path();
+            }
 
-                if (!isset($arguments['testdoxTextFile']) && $loggingConfiguration->hasTestDoxText()) {
-                    $arguments['testdoxTextFile'] = $loggingConfiguration->testDoxText()->target()->path();
-                }
+            if (!isset($arguments['testdoxTextFile']) && $loggingConfiguration->hasTestDoxText()) {
+                $arguments['testdoxTextFile'] = $loggingConfiguration->testDoxText()->target()->path();
+            }
 
-                if (!isset($arguments['testdoxXMLFile']) && $loggingConfiguration->hasTestDoxXml()) {
-                    $arguments['testdoxXMLFile'] = $loggingConfiguration->testDoxXml()->target()->path();
-                }
+            if (!isset($arguments['testdoxXMLFile']) && $loggingConfiguration->hasTestDoxXml()) {
+                $arguments['testdoxXMLFile'] = $loggingConfiguration->testDoxXml()->target()->path();
             }
 
             $testdoxGroupConfiguration = $arguments['configurationObject']->testdoxGroups();
@@ -1082,7 +1084,7 @@ final class TestRunner extends BaseTestRunner
         $extensionHandler = new ExtensionHandler;
 
         foreach ($arguments['extensions'] as $extension) {
-            $extensionHandler->registerExtension($extension, $this);
+            $this->addExtension($extensionHandler->createHookInstance($extension));
         }
 
         unset($extensionHandler);

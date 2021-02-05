@@ -251,10 +251,7 @@ class BladeCompiler extends Compiler implements CompilerInterface
             $result = $this->addFooters($result);
         }
 
-        return str_replace(
-            ['##BEGIN-COMPONENT-CLASS##', '##END-COMPONENT-CLASS##'],
-            '',
-            $result);
+        return $result;
     }
 
     /**
